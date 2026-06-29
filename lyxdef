@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+use v5.14;
+use warnings;
+
+my $defaults = $ARGV[0] // "$ENV{HOME}/.lyx/templates/defaults.lyx";
+open my $fh, '<', $defaults or die "$!: $defaults\n";
+while (<$fh>) {
+    print;
+    last if /^\\begin_layout /;
+}
+close $fh;
+
+while (<STDIN>) {
+    last if /^\\begin_layout /;
+}
+print while <STDIN>;

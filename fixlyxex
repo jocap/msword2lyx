@@ -1,0 +1,90 @@
+#!/usr/bin/env perl
+
+use v5.14;
+use warnings;
+
+my $s = do { local $/; <STDIN> };
+# my %cnt;
+
+my $layout;
+$s =~ s<\n
+\\begin_layout \s Enumerate \n+
+\\begin_inset \s Argument \s listpreamble:1 \n+
+status \s collapsed \n+
+\\begin_layout \s Plain \s Layout \n+
+\\begin_inset \s FormulaMacro \n+
+\\def\\labelenumi \s \{\(\\arabic\{enumi\}\)\} \n+
+\\end_inset \n+
+(?:
+\s* \n+
+\\begin_inset \s ERT \n+
+status \s collapsed \n+
+\\begin_layout \s Plain \s Layout \n+
+\\backslash \n+
+setcounter\{enumi\}\{[0-9]+\} \n+
+\\end_layout \n+
+\\end_inset \n+
+)?
+\n+
+\\end_layout \n+
+\\end_inset \n+
+(.*?) \n+
+\\end_layout \n+
+([^\n]+ \n)
+(?{ $layout = $^N =~ /begin_deeper/?
+    'Subexample': 'Numbered Examples (consecutive)' })
+><
+\\begin_layout $layout
+$1
+\\end_layout
+$2
+>xsg;
+
+while ($s =~ s<\n
+(
+\\begin_layout \s (?:Subexample|Numbered \s Examples \s \(consecutive\)) \n+
+(?: (?!\\end_layout) [^\n]* \n)+
+)
+\\end_layout \n+
+\\begin_deeper \n+
+\\begin_layout \s Standard \n+
+(.*?)
+\\end_layout \n+
+><
+$1
+\\begin_inset Newline newline
+\\end_inset
+$2
+\\end_layout
+\\begin_deeper
+>xsg) {};
+
+$s =~ s<\n
+\\begin_deeper \n+
+\\begin_layout \s Enumerate \n+
+\\begin_inset \s Argument \s listpreamble:1 \n+
+status \s collapsed \n+
+\\begin_layout \s Plain \s Layout \n+
+\\begin_inset \s FormulaMacro \n+
+\\def\\labelenumii \s \{\\alph\{enumii\}.\} \n+
+\\end_inset \n+
+\s* \n+
+\\begin_inset \s ERT \n+
+status \s collapsed \n+
+\\begin_layout \s Plain \s Layout \n+
+\\backslash \n+
+setcounter\{enumii\}\{[0-9]+\} \n+
+\\end_layout \n+
+\\end_inset \n+
+\\end_layout \n+
+\\end_inset \n
+(.*?)
+\\end_layout \n+
+\\end_deeper \n
+><
+\\begin_layout Subexample
+$1
+\\end_layout
+>xsg;
+
+print $s;

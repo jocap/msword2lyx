@@ -1,0 +1,41 @@
+#!/usr/bin/env perl
+
+use v5.14;
+use warnings;
+use List::Util qw/min/;
+
+my $s = do { local $/; <STDIN> };
+
+my @refs = $s =~ /\\ref\{(.*?)\}/g;
+my @labels = $s =~ /\\label\{(.*?)\}/g;
+
+my %refs;
+@refs{@refs} = ();
+
+my @superfluous = grep {!exists $refs{$_}} @labels;
+$s =~ s/\\label\{\Q$_\E\}// for @superfluous;
+
+my %slugs;
+for (@labels) {
+    if ($s =~ m<
+        ([A-Za-z,.-?!* ]+?)
+        \\label \{ \Q$_\E \}
+    >x) {
+        my $slug = $1;
+        next if $slug =~ /^ +$/;
+        $slug =~ s/[^A-Za-z ]//g;
+        $slug =~ s/ +/-/g;
+        $slug =~ s/^-//g;
+        my @parts = split /-/, $slug;
+        next if @parts < 2;
+        $slug = join '-', @parts[0..min(2,$#parts)];
+        $slug = lc $slug;
+        $slugs{$slug}++;
+        $slug = $slug.'-'.$slugs{$slug} if $slugs{$slug}>1;
+
+        $s =~ s/\\label\{\Q$_\E\}/\\label{$slug}/g;
+        $s =~ s/\\ref\{\Q$_\E\}/\\ref{$slug}/g;
+    }
+}
+
+print $s;

@@ -1,0 +1,115 @@
+#!/usr/bin/env perl
+
+use v5.14;
+use warnings;
+
+my $s = do { local $/; <STDIN> };
+my %cnt;
+
+my $extra = '';
+$s =~ s<\n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n \n
+\\backslash \n
+
+autocite (?:\[(.*?)\])?
+(?{if ($^N) {
+    my $after = $^N;
+    $after =~ s/ $//;
+    $extra = qq{after "$after"\n};
+}})
+\{ (.*?) \} \n
+
+\\end_layout \n \n
+\\end_inset \n
+(?{ $cnt{a}++ })
+><
+\\begin_inset CommandInset citation
+LatexCommand "citep"
+key "$2"
+literal "false"
+$extra
+\\end_inset
+>xsg;
+
+$s =~ s<\n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n \n
+\\backslash \n
+autocite \* \n
+\\end_layout \n \n
+\\end_inset \n \n \n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n
+\{ \n
+\\end_layout \n \n
+\\end_inset \n \n
+(.*?) \n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n
+\} \n
+\\end_layout \n \n
+\\end_inset \n
+(?{ $cnt{y}++ })
+><
+\\begin_inset CommandInset citation
+LatexCommand "citeyearpar"
+key "$1"
+literal "false"
+
+\\end_inset
+>xsg;
+
+$s =~ s<\n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n \n
+\\backslash \n
+autocite \* \n
+\\end_layout \n \n
+\\end_inset \n \n \n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n
+\[ \n
+\\end_layout \n \n
+\\end_inset \n \n
+(.*?) \s* \n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n
+\] \n
+\\end_layout \n \n
+\\end_inset \n \n \n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n
+\{ \n
+\\end_layout \n \n
+\\end_inset \n \n
+(.*?) \n
+\\begin_inset \s ERT \n
+status \s collapsed \n \n
+\\begin_layout \s Plain \s Layout \n
+\} \n
+\\end_layout \n \n
+\\end_inset \n
+(?{ $cnt{pg}++ })
+><
+\\begin_inset CommandInset citation
+LatexCommand "citeyearpar"
+after "$1"
+key "$2"
+literal "false"
+
+\\end_inset
+>xsg;
+
+say STDERR "autocite: $cnt{a} fixed";
+say STDERR "autocite*: $cnt{y} fixed";
+say STDERR "autocite*[]: $cnt{pg} fixed";
+print $s;

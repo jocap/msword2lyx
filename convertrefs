@@ -1,0 +1,11 @@
+#!/bin/sh
+in=$1
+out=$2
+[ $# -ne 2 ] && { echo usage: $0 in.docx out.docx 1>&2; exit 1; }
+[ -e word ] && { echo please delete word before running 1>&2; exit 1; }
+mkdir word
+cp "$in" "$out"
+unzip -p "$in" word/document.xml |
+    ./convertrefs.pl > word/document.xml &&
+    zip -u "$out" word/document.xml
+rm -r word
