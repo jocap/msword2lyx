@@ -10,4 +10,5 @@
 	/Applications/LyX.app/Contents/MacOS/tex2lyx -e utf8 -f "$<"
 	./fixlyxcites <"$@" >"$@.tmp" && mv "$@.tmp" "$@"
 	./fixlyxex <"$@" >"$@.tmp" && mv "$@.tmp" "$@"
+	./fixlyxst <"$@" >"$@.tmp" && mv "$@.tmp" "$@"
 	./lyxdef <"$@" >"$@.tmp" && mv "$@.tmp" "$@"

@@ -1,0 +1,29 @@
+#!/usr/bin/env perl
+# -*- mode: cperl -*-
+
+use v5.14;
+use warnings;
+
+my $textline = qr/(?:(?!\\)[^\n]*?\n)/;
+my $before_ert = qr{
+                     \n \\begin_inset \ ERT \n+ $textline*
+                     \\begin_layout \ Plain \ Layout \n+
+                 }xms;
+my $after_ert = qr{
+                    \n \\end_layout \n+ \\end_inset \n
+                }xms;
+my $rx = qr{
+             $before_ert \\backslash \n st $after_ert \n*
+             $before_ert \{ $after_ert \n*
+             ((?!\\begin_layout).*?)
+             $before_ert \} $after_ert
+         }xms;
+
+my $s = do { local $/; <STDIN> };
+$s =~ s{$rx}{
+\\strikeout on
+$1
+\\strikeout default
+}xmsg;
+
+print $s;

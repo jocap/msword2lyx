@@ -14,8 +14,8 @@ directory
   remaining ones into something more descriptive.
 * `fixlyxcites` replaces the `\autocite` commands inserted by Pandoc
   with proper LyX citation commands.
-* `fixlyxex` replaces the `Enumerate` environments inserted by Pandoc
-  by Covington example environments.
+* `fixlyxex` replaces `Enumerate` with Covington example environments.
+* `fixlyxst` replaces `\st` with LyX strikeout.
 * `lyxdef` inserts the user's default LyX template.
 
 **Warning:** The programs that process LyX code (the last three in the
