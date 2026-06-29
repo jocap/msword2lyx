@@ -18,7 +18,7 @@ directory
   by Covington example environments.
 * `lyxdef` inserts the user's default LyX template.
 
-**Warning:** The programs that process LyX code (the last four in the
+**Warning:** The programs that process LyX code (the last three in the
 list above) are highly "makeshift" and specialized to my specific
 needs. They also rely on the highly specific quirks in the output of
 `tex2lyx`, which may change in the future. In addition, the programs
